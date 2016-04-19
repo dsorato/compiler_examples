@@ -30,6 +30,14 @@ class Integer : public Node {
         int computeTree();
 };
 
+class Double : public Node {
+    public:
+        double value;
+        Double(double value) : value(value) {  }
+        void printTree();
+        int computeTree(){return 0;}
+};
+
 class BinOp : public Node {
     public:
         Operation op;
@@ -53,10 +61,9 @@ class Variable : public Node {
      public:
          std::string id;
          Node *next;
-         Variable(std::string id, Node *next) : id(id), next(next) { }
+         Variable(std::string id, Node *next = NULL) : id(id), next(next) { }
          void printTree();
          int computeTree();
 };
 
 }
-

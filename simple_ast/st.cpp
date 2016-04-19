@@ -1,4 +1,5 @@
 #include "st.h"
+#include <stdlib.h>
 
 using namespace ST;
 
@@ -7,7 +8,7 @@ extern SymbolTable symtab;
 AST::Node* SymbolTable::newVariable(std::string id, AST::Node* next){
     if ( checkId(id) ) yyerror("Variable redefinition! %s\n", id.c_str());
     else {
-       Symbol entry(integer, variable, 0, false);
+       Symbol entry(variable, 0, false);
        addSymbol(id,entry); //Adds variable to symbol table
     }
     return new AST::Variable(id, next); //Creates variable node anyway
@@ -25,3 +26,7 @@ AST::Node* SymbolTable::useVariable(std::string id){
     return new AST::Variable(id, NULL); //Creates variable node anyway
 }
 
+void SymbolTable::defineSymbolType(std::string id, Type type){
+  if ( ! checkId(id) ) yyerror("Variable not defined yet! %s\n", id.c_str());
+  entryList[id].type = type;
+}

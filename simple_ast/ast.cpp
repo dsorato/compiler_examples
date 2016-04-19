@@ -11,6 +11,11 @@ void Integer::printTree(){
     return;
 }
 
+void Double::printTree(){
+  std::cout << value;
+  return;
+}
+
 void BinOp::printTree(){
     left->printTree();
     switch(op){
@@ -42,6 +47,11 @@ int Integer::computeTree(){
     return value;
 }
 
+int Double::computeTree(){
+    return 0;
+}
+
+//computeTree sempre volta int, solução para double?
 int BinOp::computeTree(){
     int value, lvalue, rvalue;
     lvalue = left->computeTree();

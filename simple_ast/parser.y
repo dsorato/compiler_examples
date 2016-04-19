@@ -14,23 +14,28 @@ extern void yyerror(const char* s, ...);
  */
 %union {
     int integer;
+    double doubleval;
     AST::Node *node;
     AST::Block *block;
     const char *name;
+    ST::Type vartype;
 }
 
 /* token defines our terminal symbols (tokens).
  */
 %token <integer> T_INT
+%token <doubleval> T_DOUBLE
 %token T_PLUS T_NL T_COMMA
-%token T_DEF T_ASSIGN
+%token T_ASSIGN
 %token <name> T_ID
+%token <vartype> T_TINT T_TDOUBLE
 
 /* type defines the type of our nonterminal symbols.
  * Types should match the names used in the union.
  * Example: %type<node> expr
  */
 %type <node> expr line varlist
+%type <vartype> vartype
 %type <block> lines program
 
 /* Operator precedence for mathematical operators
@@ -40,7 +45,7 @@ extern void yyerror(const char* s, ...);
 %left T_TIMES
 %nonassoc error
 
-/* Starting rule 
+/* Starting rule
  */
 %start program
 
@@ -56,12 +61,13 @@ lines   : line { $$ = new AST::Block(); if($1 != NULL) $$->lines.push_back($1); 
 
 line    : T_NL { $$ = NULL; } /*nothing here to be used */
         | expr T_NL /*$$ = $1 when nothing is said*/
-        | T_DEF varlist T_NL { $$ = $2; }
+        | vartype varlist T_NL { symtab.defineSymbolType(((AST::Variable*)$2)->id, $1); $$ = $2; }
         | T_ID T_ASSIGN expr {  AST::Node* node = symtab.assignVariable($1);
                                 $$ = new AST::BinOp(node,AST::assign,$3); }
         ;
 
 expr    : T_INT { $$ = new AST::Integer($1); }
+        | T_DOUBLE {$$ = new AST::Double($1);}
         | T_ID { $$ = symtab.useVariable($1); }
         | expr T_PLUS expr { $$ = new AST::BinOp($1,AST::plus,$3); }
         | expr T_TIMES expr { $$ = new AST::BinOp($1,AST::times,$3); }
@@ -71,6 +77,7 @@ varlist : T_ID { $$ = symtab.newVariable($1, NULL); }
         | varlist T_COMMA T_ID { $$ = symtab.newVariable($3, $1); }
         ;
 
+vartype : T_TINT {$$ = $1;}/*$$ = $1 when nothing is said*/
+        | T_TDOUBLE {$$ = $1;}/*$$ = $1 when nothing is said*/
+        ;
 %%
-
-
